@@ -248,7 +248,7 @@ PACK(typedef struct MainBatteryStatus_t
     uint16_t StatusBitmap;
 } MainBatteryStatus);
 
-typedef struct SystemStatus_t
+PACK(typedef struct SystemStatus_t
 {
     BOOL  Enabled    : 1;  // Whether sensors are enabled
     UCHAR Reserved1  : 2;
@@ -259,14 +259,14 @@ typedef struct SystemStatus_t
     BOOL  LJoyConn   : 1;
     BOOL  RJoyConn   : 1;
     BOOL  Reserved2  : 7;
-} SystemStatus;
+} SystemStatus);
 
-typedef struct SuitStatusData_t
+PACK(typedef struct SuitStatusData_t
 {
     SkeletonArmsData jointData;
     MainBatteryStatus mainBatteryState;
     SystemStatus systemStatus;
-} SuitStatusData;
+} SuitStatusData);
 
 PACK(typedef struct DexCapEndPoses_t
 {
