@@ -31,36 +31,23 @@ DEX_RETURN dexcap_create_suit_instance(DEXCAP_SUIT_HANDLE * hSuit, ADAPTER_TYPE 
  * otherwise this function will connect it as a common device, and try to retrieve its
  * device type, which will cause a failure.
  */
-DEX_RETURN dexcap_connect_suit_device(DEXCAP_SUIT_HANDLE hSuit, const char * devicePath,
+DEX_RETURN dexcap_connect(DEXCAP_SUIT_HANDLE hSuit, const char * devicePath,
     DEXCAP_DEVICE_TYPE * deviceType);
 
-BOOL dexcap_is_device_connected(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType);
+DEX_RETURN dexcap_disconnect(DEXCAP_SUIT_HANDLE hSuit);
+BOOL dexcap_is_device_connected(DEXCAP_SUIT_HANDLE hSuit);
 
-DEX_RETURN dexcap_disconnect_all_devices(DEXCAP_SUIT_HANDLE hSuit);
-DEX_RETURN dexcap_disconnect_suit_device(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType);
+DEX_RETURN dexcap_start_sampling(DEXCAP_SUIT_HANDLE hSuit);
+BOOL dexcap_is_sampling_started(DEXCAP_SUIT_HANDLE hSuit);
+DEX_RETURN dexcap_stop_sampling(DEXCAP_SUIT_HANDLE hSuit);
 
-DEX_RETURN dexcap_start_suit_sampling(DEXCAP_SUIT_HANDLE hSuit);
-DEX_RETURN dexcap_start_device_sampling(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType);
-
-BOOL dexcap_is_device_sampling(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType);
-
-DEX_RETURN dexcap_stop_suit_sampling(DEXCAP_SUIT_HANDLE hSuit);
-DEX_RETURN dexcap_stop_device_sampling(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType);
-
-DEX_RETURN dexcap_get_l_glove_data(DEXCAP_SUIT_HANDLE hSuit, GloveJointAngles *jointData);
-DEX_RETURN dexcap_get_r_glove_data(DEXCAP_SUIT_HANDLE hSuit, GloveJointAngles *jointData);
-DEX_RETURN dexcap_get_ex_body_data(DEXCAP_SUIT_HANDLE hSuit, SkeletonArmsData *jointData);
-DEX_RETURN dexcap_get_suit_data(DEXCAP_SUIT_HANDLE hSuit, SuitStatusData *jointData);
-DEX_RETURN dexcap_get_arm_end_poses(DEXCAP_SUIT_HANDLE hSuit, DexCapEndPoses *endPoses);
-
-DEX_RETURN dexcap_get_l_battery_state(DEXCAP_SUIT_HANDLE hSuit, uint16_t * voltage);
-DEX_RETURN dexcap_get_r_battery_state(DEXCAP_SUIT_HANDLE hSuit, uint16_t * voltage);
+DEX_RETURN dexcap_get_status_data(DEXCAP_SUIT_HANDLE hSuit, SuitStatusData *jointData);
 DEX_RETURN dexcap_get_main_battery_state(DEXCAP_SUIT_HANDLE hSuit, MainBatteryStatus *batteryState);
+DEX_RETURN dexcap_get_system_status(DEXCAP_SUIT_HANDLE hSuit, SystemStatus *sysStatus);
 
 DEX_RETURN register_status_data_callback(DEXCAP_SUIT_HANDLE hSuit, DexCapSuitDataProc callback);
 
-DEX_RETURN dexcap_get_diagnostics(DEXCAP_SUIT_HANDLE hSuit, ErrorCode *errCode, char *errMsg, size_t errMsgLen, size_t *actualErrMsgLen);
-DEX_RETURN dexcap_get_device_diagnostics(DEXCAP_SUIT_HANDLE hSuit, DEXCAP_DEVICE_TYPE deviceType,
+DEX_RETURN dexcap_get_diagnostics(DEXCAP_SUIT_HANDLE hSuit,
     ErrorCode *errCode,
     char *errMsg,
     size_t errMsgLen,
