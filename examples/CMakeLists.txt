@@ -1,0 +1,74 @@
+cmake_minimum_required(VERSION 3.10)
+project(DexGloveDemo)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(INCLUDE_DIRECTORIES
+    ${PROJECT_SOURCE_DIR}/../include
+    ${PROJECT_SOURCE_DIR}/../include/cpp)
+
+if(UNIX)
+    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" DEXCAP_ARCH)
+    if(DEXCAP_ARCH MATCHES "^(x86_64|amd64)$")
+        set(DEP_LIB_DIR "${PROJECT_SOURCE_DIR}/../libs/linux/x86_64")
+    elseif(DEXCAP_ARCH MATCHES "^(aarch64|arm64)$")
+        set(DEP_LIB_DIR "${PROJECT_SOURCE_DIR}/../libs/linux/aarch64")
+    else()
+        message(FATAL_ERROR
+            "Unsupported Linux architecture: ${CMAKE_SYSTEM_PROCESSOR}. "
+            "Supported: x86_64, aarch64.")
+    endif()
+elseif(WIN32)
+    set(DEP_LIB_DIR "${PROJECT_SOURCE_DIR}/../libs/windows")
+else()
+    message(FATAL_ERROR "Unsupported platform.")
+endif()
+
+if(UNIX)
+    set(TARGET_DIR ${PROJECT_SOURCE_DIR}/bin/linux)
+else()
+    set(TARGET_DIR ${PROJECT_SOURCE_DIR}/bin/windows)
+endif()
+
+
+ADD_EXECUTABLE(DexCapDemo example.cpp example_defs.h)
+#ADD_EXECUTABLE(DexCapDemo_C c_example.c example_defs.h)
+
+if(UNIX)
+    target_include_directories(DexCapDemo PUBLIC ${INCLUDE_DIRECTORIES})
+#target_include_directories(DexCapDemo_C PUBLIC ${INCLUDE_DIRECTORIES})
+    set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -g -mavx2 -mfma -O2 -Wno-narrowing -Wno-deprecated-enum-enum-conversion")
+    set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -g -mavx2 -mfma -O0 -Wno-narrowing -Wno-deprecated-enum-enum-conversion")
+    set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -g -mavx2 -mfma -O2 -Wno-narrowing -Wno-deprecated-enum-enum-conversion")
+    add_compile_options(-m64 -shared -fPIC -fno-strict-aliasing -Wstringop-overflow=0 -Wpessimizing-move)
+
+    target_link_libraries(DexCapDemo PUBLIC ${DEP_LIB_DIR}/libserial.so ${DEP_LIB_DIR}/libusb-1.0.so ${DEP_LIB_DIR}/libDexCap.so)
+#target_link_libraries(DexCapDemo PUBLIC ${DEP_LIB_DIR}/libserial.so ${DEP_LIB_DIR}/libyaml-cpp.so ${DEP_LIB_DIR}/libusb-1.0.so ${DEP_LIB_DIR}/libDexCap.so)
+#target_link_libraries(DexCapDemo_C PUBLIC ${DEP_LIB_DIR}/libserial.so ${DEP_LIB_DIR}/libyaml-cpp.so ${DEP_LIB_DIR}/libusb-1.0.so ${DEP_LIB_DIR}/libDexCap.so)
+else()
+    target_compile_definitions(DexCapDemo PRIVATE DexCap _AMD64_)
+#target_compile_definitions(DexCapDemo_C PRIVATE DexCap _AMD64_)
+    target_include_directories(DexCapDemo PUBLIC ${INCLUDE_DIRECTORIES})
+#target_include_directories(DexCapDemo_C PUBLIC ${INCLUDE_DIRECTORIES})
+
+    add_definitions(
+            /GS /W3 /Gy /Ob2 /Zc:wchar_t /Zi /Gm- /Zc:inline /Zc:__cplusplus /fp:precise /D "WIN32"
+            /D "_WINDOWS" /D "_USRDLL" /D "_MBCS" /errorReport:prompt /WX- /Zc:forScope /Gd /FC /Fa /GF
+            /D "NOMINMAX" /utf-8 /EHsc /nologo /diagnostics:classic /D _CRT_SECURE_NO_WARNINGS
+    )
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_definitions(-DUNICODE -D_UNICODE)
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -Od -D_DEBUG /MDd")
+    set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 /MT")
+    link_libraries(ws2_32)
+
+    link_directories(${DEP_LIB_DIR})
+    target_link_libraries(DexCapDemo PUBLIC ${DEP_LIB_DIR}/DexCap.lib)
+#target_link_libraries(DexCapDemo_C PUBLIC ${DEP_LIB_DIR}/DexCap.lib)
+endif()
+
+set_target_properties(DexCapDemo PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_DIR}")
+#set_target_properties(DexCapDemo_C PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_DIR}")
